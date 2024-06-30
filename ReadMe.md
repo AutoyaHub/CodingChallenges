@@ -4,18 +4,7 @@ Welcome to the Autoya Coding Challenges repository! These challenges are designe
 
 Whether you're interested in backend development, data processing, or any other area we might explore, these tasks are an opportunity to demonstrate your problem-solving abilities and attention to detail.
 
-## Challenges
-
-Below is a list of the current challenges available. Each challenge includes a detailed README with specific instructions, objectives, and submission guidelines.
-
-### Backend
-
-- [Document Text Extractor](Backend/Document%20Text%20Extractor/ReadMe.md): Build an application that extracts text from uploaded PDF documents and displays the content to the user.
-- [Query Engine](Backend/Query%20Engine/ReadMe.md): Develop a query engine that efficiently filters and returns data based on specified criteria.
-
-### Frontend
-
-- [Markdown Editor Application](Frontend/Markdown%20Editor%20App/Readme.md): Create a Markdown editor application using React, TypeScript, and the Lexical editor framework.
+Each challenge includes a detailed README with specific instructions, objectives, and submission guidelines.
 
 ## How to Participate
 
