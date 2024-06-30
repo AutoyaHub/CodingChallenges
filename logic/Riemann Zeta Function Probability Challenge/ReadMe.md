@@ -1,4 +1,12 @@
-You are given the Riemann zeta function \( \zeta(s) \), which converges for all \( s > 1 \), where \( s \) is a real number. Given a random variable \( x \), we define a probability mass function 
+# Riemann Zeta Function and Probability Mass Function
+
+You are given the Riemann zeta function \( \zeta(s) \), which converges for all \( s > 1 \), where \( s \) is a real number. The Riemann zeta function is defined as:
+
+$$
+\zeta(s) = \sum_{n=1}^{\infty} \frac{1}{n^s}
+$$
+
+Given a random variable \( x \), we define a probability mass function 
 
 $$
 P(x = n) = \frac{1}{n^s \cdot \zeta(s)}
