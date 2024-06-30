@@ -29,4 +29,4 @@ Let \( E_k \) be the event that \( x \) is divisible by \( k \).
 1. Determine \( P(E_2 \cap E_3) \).
 2. Follow-up: What is the probability of the intersection of \( E_p \) over all primes \( p \)?
 
-   **Hint:** Consider the probability of the complement of the intersection of \( E_p \) not happening over all primes.
+   **Hint:** Consider the probability of the complement of the intersection of \( E_p \) over all primes.
