@@ -26,3 +26,5 @@ We are looking for solutions that demonstrate:
 If you have any questions or need clarification about a challenge, feel free to open an issue in this repository. We aim to respond as quickly as possible.
 
 We're excited to see your solutions!
+
+---
