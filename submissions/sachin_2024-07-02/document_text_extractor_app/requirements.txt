@@ -1,0 +1,5 @@
+fastapi
+streamlit
+pymupdf
+uvicorn
+python-dotenv
