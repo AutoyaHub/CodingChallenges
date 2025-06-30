@@ -1,2 +1,16 @@
 solutions/
 submissions/.DS_Store
+
+# Internal recruiting materials
+templates/
+docs/interview-questions.md
+
+# IDE and system files
+.vscode/
+.idea/
+*.pyc
+__pycache__/
+.env
+.env.local
+.DS_Store
+*.log
