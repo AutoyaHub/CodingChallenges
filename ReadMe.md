@@ -141,7 +141,7 @@ We welcome contributions to improve our challenges! Please see our [Contributing
 
 ## 📞 Support
 
-- **Email**: hiring@autoya.de
+- **Email**: tech@autoya.de
 - **Issues**: [GitHub Issues](https://github.com/AutoyaHub/CodingChallenges/issues)
 - **Response Time**: Within 24 hours during business days
 
