@@ -12,6 +12,50 @@ env:
   NODE_VERSION: '18'
 
 jobs:
+  # Job 1: Validate Repository Structure
+  validate-structure:
+    name: 📁 Validate Repository Structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate Directory Structure
+        run: |
+          echo "🔍 Validating repository structure..."
+          
+          # Check required directories exist
+          required_dirs=("backend" "frontend" "fullstack" "logic" "submissions" "templates")
+          for dir in "${required_dirs[@]}"; do
+            if [ ! -d "$dir" ]; then
+              echo "❌ Missing required directory: $dir"
+              exit 1
+            fi
+            echo "✅ Found directory: $dir"
+          done
+          
+          # Check for README files in challenges
+          echo "🔍 Checking for README files in challenge directories..."
+          readme_count=0
+          for category in backend frontend fullstack logic; do
+            if [ -d "$category" ]; then
+              for challenge_dir in "$category"/*; do
+                if [ -d "$challenge_dir" ]; then
+                  readme_file="$challenge_dir/README.md"
+                  if [ -f "$readme_file" ]; then
+                    echo "✅ Found README: $readme_file"
+                    ((readme_count++))
+                  else
+                    echo "⚠️  Missing README: $readme_file"
+                  fi
+                fi
+              done
+            fi
+          done
+          
+          echo "📊 Found $readme_count README files in challenge directories"
+          echo "🎉 Repository structure validation completed!"
+
   # Job 2: Lint Documentation
   lint-docs:
     name: 📝 Lint Documentation
@@ -249,7 +293,7 @@ jobs:
             markdown-link-check "$file" --config .github/link-check-config.json || echo "⚠️ Link issues found in $file"
           done
 
-  # Job 7: Challenge Validation
+  # Job 7: Basic Challenge Validation
   validate-challenges:
     name: ✅ Validate Challenges
     runs-on: ubuntu-latest
@@ -257,211 +301,24 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Validate Challenge Structure
+      - name: Count and Validate Basic Structure
         run: |
-          echo "🔍 Validating challenge structure..."
+          echo "🔍 Basic challenge validation..."
           
-          python3 << 'EOF'
-          import os
-          import json
-          import re
+          # Simple validation - just count challenges and check basic structure
+          total_challenges=0
+          for category in backend frontend fullstack logic; do
+            if [ -d "$category" ]; then
+              category_count=$(find "$category" -mindepth 1 -maxdepth 1 -type d | wc -l)
+              echo "📁 $category: $category_count challenges"
+              total_challenges=$((total_challenges + category_count))
+            fi
+          done
           
-          def validate_challenge_readme(path):
-              """Validate that a challenge README has basic structure"""
-              # Relaxed requirements - just check for basic sections
-              suggested_sections = [
-                  "overview", "problem", "requirement", "getting started", 
-                  "test", "evaluation", "description", "setup", "usage"
-              ]
-              
-              try:
-                  with open(path, 'r', encoding='utf-8') as f:
-                      content = f.read().lower()
-              except Exception as e:
-                  print(f"❌ Error reading {path}: {e}")
-                  return False
-              
-              found_sections = []
-              for section in suggested_sections:
-                  if section in content:
-                      found_sections.append(section)
-              
-              if len(found_sections) >= 2:  # Require at least 2 basic sections
-                  print(f"✅ {path} has sufficient structure ({len(found_sections)} relevant sections)")
-                  return True
-              else:
-                  print(f"⚠️  {path} has minimal structure ({len(found_sections)} relevant sections)")
-                  return True  # Don't fail, just warn
+          echo "📊 Total challenges: $total_challenges"
           
-          def validate_difficulty_badge(path):
-              """Check if README has difficulty indication"""
-              try:
-                  with open(path, 'r', encoding='utf-8') as f:
-                      content = f.read()
-              except Exception as e:
-                  print(f"❌ Error reading {path}: {e}")
-                  return False
-              
-              difficulty_indicators = ['difficulty', '⭐', 'easy', 'medium', 'hard', 'beginner', 'intermediate', 'advanced']
-              has_difficulty = any(indicator in content.lower() for indicator in difficulty_indicators)
-              
-              if has_difficulty:
-                  print(f"✅ {path} has difficulty indication")
-                  return True
-              else:
-                  print(f"ℹ️  {path} could benefit from difficulty indication")
-                  return True  # Don't fail, just suggest
+          # Check README files exist
+          readme_count=$(find backend frontend fullstack logic -name "README.md" 2>/dev/null | wc -l)
+          echo "📄 README files: $readme_count"
           
-          # Find all challenge READMEs
-          challenge_dirs = ['backend', 'frontend', 'fullstack', 'logic']
-          all_valid = True
-          challenge_count = 0
-          
-          for category in challenge_dirs:
-              if os.path.exists(category):
-                  for item in os.listdir(category):
-                      challenge_path = os.path.join(category, item)
-                      readme_path = os.path.join(challenge_path, 'README.md')
-                      
-                      if os.path.isdir(challenge_path) and os.path.exists(readme_path):
-                          print(f"\n📋 Validating {readme_path}")
-                          challenge_count += 1
-                          if not validate_challenge_readme(readme_path):
-                              all_valid = False
-                          validate_difficulty_badge(readme_path)
-          
-          print(f"\n📊 Validated {challenge_count} challenges")
-          
-          if not all_valid:
-              print("\n⚠️  Some challenges could be improved, but validation passed")
-          else:
-              print("\n🎉 All challenges validated successfully!")
-          
-          # Always exit successfully unless there were serious errors
-          EOF
-
-  # Job 8: Generate Report
-  generate-report:
-    name: 📊 Generate Quality Report
-    runs-on: ubuntu-latest
-    needs: [lint-docs, test-python, test-nodejs, validate-challenges]
-    if: always()
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Generate Quality Report
-        run: |
-          echo "📊 Generating Quality Report"
-          
-          # Function to get status with fallback
-          get_status() {
-            case "$1" in
-              "success") echo "✅ Passed" ;;
-              "failure") echo "❌ Failed" ;;
-              "cancelled") echo "🚫 Cancelled" ;;
-              "skipped") echo "⏭️ Skipped" ;;
-              *) echo "❓ Unknown" ;;
-            esac
-          }
-          
-          cat > quality-report.md << EOF
-          # 📊 Repository Quality Report
-          
-          Generated on: $(date)
-          
-          ## 🔍 Validation Results
-          
-          | Check | Status |
-          |-------|--------|
-          | Documentation Linting | $(get_status "${{ needs.lint-docs.result }}") |
-          | Python Tests | $(get_status "${{ needs.test-python.result }}") |
-          | Node.js Tests | $(get_status "${{ needs.test-nodejs.result }}") |
-          | Challenge Validation | $(get_status "${{ needs.validate-challenges.result }}") |
-          
-          ## 📈 Statistics
-          
-          - **Challenges**: $(find backend frontend fullstack logic -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
-          - **README Files**: $(find . -name "README.md" 2>/dev/null | wc -l)
-          - **Python Files**: $(find . -name "*.py" 2>/dev/null | wc -l)
-          - **JavaScript/TypeScript Files**: $(find . \( -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" \) 2>/dev/null | wc -l)
-          
-          ---
-          *Report generated by GitHub Actions CI/CD pipeline*
-          EOF
-          
-          echo "📋 Quality report generated"
-          cat quality-report.md
-
-      - name: Upload Quality Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: quality-report
-          path: quality-report.md
-
-  # Job 9: Deploy Documentation (on main branch)
-  deploy-docs:
-    name: 📚 Deploy Documentation
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [validate-challenges]
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install MkDocs
-        run: |
-          pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
-
-      - name: Build Documentation
-        run: |
-          echo "📚 Building documentation..."
-          # Create mkdocs.yml if it doesn't exist
-          if [ ! -f "mkdocs.yml" ]; then
-            cat > mkdocs.yml << 'EOF'
-          site_name: Autoya Coding Challenges
-          site_description: World-class coding challenges for software engineers
-          site_url: https://autoyahub.github.io/CodingChallenges/
-          
-          theme:
-            name: material
-            palette:
-              primary: blue
-              accent: light-blue
-            features:
-              - navigation.tabs
-              - navigation.sections
-              - toc.integrate
-              - search.highlight
-          
-          plugins:
-            - search
-            - mermaid2
-          
-          nav:
-            - Home: index.md
-            - Backend Challenges: backend/
-            - Frontend Challenges: frontend/
-            - Full-Stack Challenges: fullstack/
-            - Logic Challenges: logic/
-            - Contributing: CONTRIBUTING.md
-          EOF
-          fi
-          
-          mkdocs build
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site 
+          echo "✅ Basic validation completed!" 
