@@ -15,11 +15,11 @@ You pick the exact approach, libraries, and deployment method—just stay within
 
 ## 2 · Tech Stack (baseline)
 
-* **Frontend** React + Next.js with **TypeScript**.
-* **Backend** Python (**FastAPI** preferred).
-* **Database** MongoDB (free tier).
-* **LLM / NLP** Any model or service you can run for free or behind an env-var key.
-* **Hosting** Deploy the frontend (e.g. Vercel) and backend (e.g. Fly.io, Railway, Render, or Docker on any VM).
+* **Frontend** React + Next.js with **TypeScript**.
+* **Backend** Python (**FastAPI** preferred) **OR** just use Next.js API routes (TypeScript).
+* **Database** MongoDB (free tier).
+* **LLM / NLP** Any model or service you can run for free or behind an env-var key.
+* **Hosting** Deploy the frontend (e.g. Vercel) and backend (e.g. Fly.io, Railway, Render, or Docker on any VM). If using Next.js only, just deploy to Vercel.
 
 ---
 
@@ -31,9 +31,9 @@ You pick the exact approach, libraries, and deployment method—just stay within
 | **Extraction** | Produce a JSON object with these fields: `parties`, `effective_date`, `termination_clause`, `governing_law`, `payment_terms`. |
 | **Summary** | ≤ 150-word paragraph in plain English. |
 | **Chat** | Endpoint that answers questions about the uploaded contract. |
-| **Type Safety** | TypeScript **strict** on the front; Python type hints on the back. |
+| **Type Safety** | TypeScript **strict** throughout. If using Python backend, include type hints. |
 | **Testing** | One happy-path unit test **per backend route**. |
-| **Deployment** | Public URLs for frontend **and** backend, plus a health check. |
+| **Deployment** | Public URL(s) for your app, plus a health check endpoint. |
 
 ---
 
@@ -69,14 +69,3 @@ Aim to spend **8–12 focused hours** and deliver within **5 calendar days** of 
 ---
 
 Good luck — surprise us with clear code, concise docs, and a smooth demo. 
-
-
-# English contract  ➜  sample_contract_en.pdf
-pandoc "fullstack/LegalDoc Assistant/sample_contract_en.md" \
-      -o "fullstack/LegalDoc Assistant/sample_contract_en.pdf" \
-      --pdf-engine=xelatex -s
-
-# German contract  ➜  sample_contract_de.pdf
-pandoc "fullstack/LegalDoc Assistant/sample_contract_de.md" \
-      -o "fullstack/LegalDoc Assistant/sample_contract_de.pdf" \
-      --pdf-engine=xelatex -s
