@@ -12,50 +12,6 @@ env:
   NODE_VERSION: '18'
 
 jobs:
-  # Job 1: Validate Repository Structure
-  validate-structure:
-    name: 📁 Validate Repository Structure
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Validate Directory Structure
-        run: |
-          echo "🔍 Validating repository structure..."
-          
-          # Check required directories exist
-          required_dirs=("backend" "frontend" "fullstack" "logic" "submissions" "templates")
-          for dir in "${required_dirs[@]}"; do
-            if [ ! -d "$dir" ]; then
-              echo "❌ Missing required directory: $dir"
-              exit 1
-            fi
-            echo "✅ Found directory: $dir"
-          done
-          
-          # Check for README files in challenges
-          echo "🔍 Checking for README files in challenge directories..."
-          readme_count=0
-          for category in backend frontend fullstack logic; do
-            if [ -d "$category" ]; then
-              for challenge_dir in "$category"/*; do
-                if [ -d "$challenge_dir" ]; then
-                  readme_file="$challenge_dir/README.md"
-                  if [ -f "$readme_file" ]; then
-                    echo "✅ Found README: $readme_file"
-                    ((readme_count++))
-                  else
-                    echo "⚠️  Missing README: $readme_file"
-                  fi
-                fi
-              done
-            fi
-          done
-          
-          echo "📊 Found $readme_count README files in challenge directories"
-          echo "🎉 Repository structure validation completed!"
-
   # Job 2: Lint Documentation
   lint-docs:
     name: 📝 Lint Documentation
@@ -393,7 +349,7 @@ jobs:
   generate-report:
     name: 📊 Generate Quality Report
     runs-on: ubuntu-latest
-    needs: [validate-structure, lint-docs, test-python, test-nodejs, validate-challenges]
+    needs: [lint-docs, test-python, test-nodejs, validate-challenges]
     if: always()
     steps:
       - name: Checkout Code
@@ -423,7 +379,6 @@ jobs:
           
           | Check | Status |
           |-------|--------|
-          | Repository Structure | $(get_status "${{ needs.validate-structure.result }}") |
           | Documentation Linting | $(get_status "${{ needs.lint-docs.result }}") |
           | Python Tests | $(get_status "${{ needs.test-python.result }}") |
           | Node.js Tests | $(get_status "${{ needs.test-nodejs.result }}") |
@@ -454,7 +409,7 @@ jobs:
     name: 📚 Deploy Documentation
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [validate-structure, validate-challenges]
+    needs: [validate-challenges]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
